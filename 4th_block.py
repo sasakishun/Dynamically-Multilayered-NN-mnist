@@ -94,27 +94,9 @@ class cifar10vgg:
 
         model.add(MaxPooling2D(pool_size=(2, 2)))
 
-        # 5
-        model.add(Conv2D(512, (3, 3), padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
-        model.add(Activation('relu'))
-        model.add(BatchNormalization())
-        model.add(Dropout(0.4))
-
-        model.add(Conv2D(512, (3, 3), padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
-        model.add(Activation('relu'))
-        model.add(BatchNormalization())
-        model.add(Dropout(0.4))
-
-        model.add(Conv2D(512, (3, 3), padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
-        model.add(Activation('relu'))
-        model.add(BatchNormalization())
-
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.5))
-
         # full_connect
         model.add(Flatten())
-        model.add(Dense(4096, kernel_regularizer=regularizers.l2(weight_decay)))
+        model.add(Dense(2*2*512, kernel_regularizer=regularizers.l2(weight_decay)))
         model.add(Activation('relu'))
         model.add(BatchNormalization())
 
@@ -206,86 +188,3 @@ class cifar10vgg:
         model.save_weights('cifar10vgg.h5')
         return model
 
-
-first = __import__("1st_block")
-second = __import__("2nd_block")
-third = __import__("3rd_block")
-forth = __import__("4th_block")
-fifth = __import__("5th_block")
-
-if __name__ == '__main__':
-    # (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    (x_train, y_train), (x_test, y_test) = cifar10.load_data()
-    x_train = x_train.astype('float32')
-    x_test = x_test.astype('float32')
-
-    y_train = keras.utils.to_categorical(y_train, 10)
-    y_test = keras.utils.to_categorical(y_test, 10)
-
-    f_model = './model'
-    # 1st
-    model = first.cifar10vgg()
-    predicted_x = model.predict(x_test)
-    residuals = np.argmax(predicted_x, 1) != np.argmax(y_test, 1)
-    loss = sum(residuals) / len(residuals)
-    print("the validation 0/1 loss is: ", loss)
-    sgd = optimizers.SGD()
-    model.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
-    print(model.evaluate(x_test, y_test, batch_size=128))
-    # model.save_weights("weight.h1")
-
-    print('save the architecture of a model')
-    json_string = model.to_json()
-    open(os.path.join(f_model, 'cnn_model.json'), 'w').write(json_string)
-    yaml_string = model.to_yaml()
-    open(os.path.join(f_model, 'cnn_model.yaml'), 'w').write(yaml_string)
-    print('save weights')
-    model.save_weights(os.path.join(f_model, 'weight.h1'))
-
-    # 2nd
-    model = second.cifar10vgg()
-    model.load_weights("weight.h1")
-    predicted_x = model.predict(x_test)
-    residuals = np.argmax(predicted_x, 1) != np.argmax(y_test, 1)
-    loss = sum(residuals) / len(residuals)
-    print("the validation 0/1 loss is: ", loss)
-    sgd = optimizers.SGD()
-    model.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
-    print(model.evaluate(x_test, y_test, batch_size=128))
-    model.save_weights("weight.h2")
-
-    # 3rd
-    model = third.cifar10vgg()
-    model.load_weights("weight.h2")
-    predicted_x = model.predict(x_test)
-    residuals = np.argmax(predicted_x, 1) != np.argmax(y_test, 1)
-    loss = sum(residuals) / len(residuals)
-    print("the validation 0/1 loss is: ", loss)
-    sgd = optimizers.SGD()
-    model.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
-    print(model.evaluate(x_test, y_test, batch_size=128))
-    model.save_weights("weight.h3")
-
-    # 4th
-    model = forth.cifar10vgg()
-    model.load_weights("weight.h3")
-    predicted_x = model.predict(x_test)
-    residuals = np.argmax(predicted_x, 1) != np.argmax(y_test, 1)
-    loss = sum(residuals) / len(residuals)
-    print("the validation 0/1 loss is: ", loss)
-    sgd = optimizers.SGD()
-    model.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
-    print(model.evaluate(x_test, y_test, batch_size=128))
-    model.save_weights("weight.h4")
-
-    # 5th
-    model = fifth.cifar10vgg()
-    model.load_weights("weight.h4")
-    predicted_x = model.predict(x_test)
-    residuals = np.argmax(predicted_x, 1) != np.argmax(y_test, 1)
-    loss = sum(residuals) / len(residuals)
-    print("the validation 0/1 loss is: ", loss)
-    sgd = optimizers.SGD()
-    model.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
-    print(model.evaluate(x_test, y_test, batch_size=128))
-    model.save_weights("weight.h5")
